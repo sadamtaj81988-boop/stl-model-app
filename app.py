@@ -12,6 +12,7 @@ data = pd.DataFrame({
     "revenue": [300, 200]
 })
 
+
 # Chart
 fig = px.bar(data, x="channel", y="revenue", title="Revenue by Channel")
 st.plotly_chart(fig)
