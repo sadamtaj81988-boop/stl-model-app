@@ -1,29 +1,44 @@
-import streamlit as st 
+import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Title
+# TITLE
 st.title("STL MODEL")
-st.write("Structured Intelligence Engine")
+st.subheader("Structured Intelligence Engine")
 
-# Sample data
-data = pd.DataFrame({
-    "channel": ["Online", "Store"],
-    "revenue": [300, 200]
-})
+# DATA INPUT (Applications Layer)
+channel = st.selectbox("Select Channel", ["Online", "Store"])
+revenue = st.number_input("Enter Revenue", value=100)
 
+# STORE DATA (Pipelines → Storage)
+if "data" not in st.session_state:
+    st.session_state.data = pd.DataFrame(columns=["channel", "revenue"])
 
+new_data = pd.DataFrame([[channel, revenue]], columns=["channel", "revenue"])
+st.session_state.data = pd.concat([st.session_state.data, new_data], ignore_index=True)
 
-# Chart
-fig = px.bar(data, x="channel", y="revenue", title="Revenue by Channel")
-st.plotly_chart(fig)
+data = st.session_state.data
 
-# Total revenue
-total = data["revenue"].sum()
-st.write("Total Revenue:", total)
+# VISUALIZATION (Storage → Intelligence)
+if not data.empty:
+    fig = px.bar(data, x="channel", y="revenue", title="Revenue by Channel")
+    st.plotly_chart(fig)
 
-# Decision logic
-if total > 400:
-    st.success("HIGH PERFORMANCE")
-else:
-    st.warning("LOW PERFORMANCE")
+# INTELLIGENCE LAYER
+if not data.empty:
+    total = data["revenue"].sum()
+    st.write("Total Revenue:", total)
+
+    online = data[data["channel"] == "Online"]["revenue"].sum()
+    store = data[data["channel"] == "Store"]["revenue"].sum()
+
+    st.write("Online Revenue:", online)
+    st.write("Store Revenue:", store)
+
+    # DECISION ENGINE
+    if online > store:
+        st.success("Insight: Online channel is dominant")
+    elif store > online:
+        st.warning("Insight: Store channel is dominant")
+    else:
+        st.info("Insight: Channels are balanced")
